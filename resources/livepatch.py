@@ -45,7 +45,7 @@ class PaTch(object):
             bashCommand.extend(['--debug'])
         _command(bashCommand, uuid_dir, {'CACHEDIR': kpatch_cachedir})
         if debug:
-            _command(['cp', '-f', os.path.join(kpatch_cachedir, 'build.log'), uuid_dir])
+            shutil.copy(os.path.join(kpatch_cachedir, 'build.log'), uuid_dir)
 
     def get_kernel_sources(self, uuid, kernel_version, debug=True):
         """
@@ -99,7 +99,7 @@ class PaTch(object):
             print("Adding DEBUG_INFO for getting kernel debug symbols")
             for line in fileinput.input(uuid_dir_config, inplace=1):
                 print(line.replace("# CONFIG_DEBUG_INFO is not set", "CONFIG_DEBUG_INFO=y"))
-        _command(['cp', '/tmp/elivepatch-' + uuid + '/config', kernel_source_dir + '.config'])
+        shutil.copyfile('/tmp/elivepatch-' + uuid + '/config', kernel_source_dir + '.config')
         # olddefconfig default everything that is new from the configuration file
         _command(['make', 'olddefconfig'], kernel_source_dir)
         # copy the olddefconfig generated config file back,
