@@ -85,16 +85,16 @@ class PaTch(object):
 
     def build_kernel(self):
         kernel_source_dir = os.path.join(self.base_dir, 'usr/src/linux/')
-        uuid_dir_config = os.path.join(self.base_dir, 'config')
-        if 'CONFIG_DEBUG_INFO=y' in open(uuid_dir_config).read():
+        base_config_path = os.path.join(self.base_dir, 'config')
+        if 'CONFIG_DEBUG_INFO=y' in open(base_config_path).read():
             print("DEBUG_INFO correctly present")
-        elif 'CONFIG_DEBUG_INFO=n' in open(uuid_dir_config).read():
+        elif 'CONFIG_DEBUG_INFO=n' in open(base_config_path).read():
             print("changing DEBUG_INFO to yes")
-            for line in fileinput.input(uuid_dir_config, inplace=1):
+            for line in fileinput.input(base_config_path, inplace=1):
                 print(line.replace("CONFIG_DEBUG_INFO=n", "CONFIG_DEBUG_INFO=y"))
         else:
             print("Adding DEBUG_INFO for getting kernel debug symbols")
-            for line in fileinput.input(uuid_dir_config, inplace=1):
+            for line in fileinput.input(base_config_path, inplace=1):
                 print(line.replace("# CONFIG_DEBUG_INFO is not set", "CONFIG_DEBUG_INFO=y"))
         shutil.copyfile(os.path.join(self.base_dir, 'config'), os.path.join(kernel_source_dir, '.config'))
         # olddefconfig default everything that is new from the configuration file
