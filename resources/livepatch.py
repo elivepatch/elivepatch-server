@@ -8,6 +8,7 @@ import subprocess
 import os
 import fileinput
 import tempfile
+import shutil
 
 
 class PaTch(object):
@@ -101,6 +102,9 @@ class PaTch(object):
         _command(['cp', '/tmp/elivepatch-' + uuid + '/config', kernel_source_dir + '.config'])
         # olddefconfig default everything that is new from the configuration file
         _command(['make', 'olddefconfig'], kernel_source_dir)
+        # copy the olddefconfig generated config file back,
+        # so that we don't trigger a config restart when kpatch-build runs
+        shutil.copyfile(kernel_source_dir + '.config', '/tmp/elivepatch-' + uuid + '/config')
         _command(['make'], kernel_source_dir)
         _command(['make', 'modules'], kernel_source_dir)
 
