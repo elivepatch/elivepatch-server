@@ -86,6 +86,8 @@ class PaTch(object):
         return kernel_sources_status
 
     def build_kernel(self):
+        kernel_config_path = os.path.join(self.__kernel_source_dir__, '.config')
+
         if 'CONFIG_DEBUG_INFO=y' in open(self.base_config_path).read():
             print("DEBUG_INFO correctly present")
         elif 'CONFIG_DEBUG_INFO=n' in open(self.base_config_path).read():
@@ -96,12 +98,12 @@ class PaTch(object):
             print("Adding DEBUG_INFO for getting kernel debug symbols")
             for line in fileinput.input(self.base_config_path, inplace=1):
                 print(line.replace("# CONFIG_DEBUG_INFO is not set", "CONFIG_DEBUG_INFO=y"))
-        shutil.copyfile(self.base_config_path, os.path.join(self.__kernel_source_dir__, '.config'))
+        shutil.copyfile(self.base_config_path, kernel_config_path)
         # olddefconfig default everything that is new from the configuration file
         _command(['make', 'olddefconfig'], self.__kernel_source_dir__)
         # copy the olddefconfig generated config file back,
         # so that we don't trigger a config restart when kpatch-build runs
-        shutil.copyfile(os.path.join(self.__kernel_source_dir__, '.config'), self.base_config_path)
+        shutil.copyfile(kernel_config_path, self.base_config_path)
         _command(['make'], self.__kernel_source_dir__)
         _command(['make', 'modules'], self.__kernel_source_dir__)
 
