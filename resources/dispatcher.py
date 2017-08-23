@@ -121,13 +121,13 @@ class GetFiles(Resource):
             print('creating: "' + uuid_dir + '"')
             os.makedirs(uuid_dir)
 
-        lpatch = PaTch(uuid_dir)
-
         print("file get config: " + str(file_args))
         configFile = file_args['config']
         # saving config file
         configFile_name = os.path.join(uuid_dir, file_args['config'].filename)
         configFile.save(configFile_name)
+
+        lpatch = PaTch(uuid_dir, configFile_name)
 
         # saving incremental patches
         incremental_patches_directory = os.path.join(uuid_dir, 'etc', 'portage', 'patches',

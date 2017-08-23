@@ -13,8 +13,9 @@ import shutil
 
 class PaTch(object):
 
-    def __init__(self, base_dir):
+    def __init__(self, base_dir, base_config_path):
         self.base_dir = base_dir
+        self.base_config_path = base_config_path
 
     def build_livepatch(self, vmlinux, debug=True):
         """
@@ -85,23 +86,23 @@ class PaTch(object):
 
     def build_kernel(self):
         kernel_source_dir = os.path.join(self.base_dir, 'usr/src/linux/')
-        base_config_path = os.path.join(self.base_dir, 'config')
-        if 'CONFIG_DEBUG_INFO=y' in open(base_config_path).read():
+
+        if 'CONFIG_DEBUG_INFO=y' in open(self.base_config_path).read():
             print("DEBUG_INFO correctly present")
-        elif 'CONFIG_DEBUG_INFO=n' in open(base_config_path).read():
+        elif 'CONFIG_DEBUG_INFO=n' in open(self.base_config_path).read():
             print("changing DEBUG_INFO to yes")
-            for line in fileinput.input(base_config_path, inplace=1):
+            for line in fileinput.input(self.base_config_path, inplace=1):
                 print(line.replace("CONFIG_DEBUG_INFO=n", "CONFIG_DEBUG_INFO=y"))
         else:
             print("Adding DEBUG_INFO for getting kernel debug symbols")
-            for line in fileinput.input(base_config_path, inplace=1):
+            for line in fileinput.input(self.base_config_path, inplace=1):
                 print(line.replace("# CONFIG_DEBUG_INFO is not set", "CONFIG_DEBUG_INFO=y"))
-        shutil.copyfile(os.path.join(self.base_dir, 'config'), os.path.join(kernel_source_dir, '.config'))
+        shutil.copyfile(self.base_config_path, os.path.join(kernel_source_dir, '.config'))
         # olddefconfig default everything that is new from the configuration file
         _command(['make', 'olddefconfig'], kernel_source_dir)
         # copy the olddefconfig generated config file back,
         # so that we don't trigger a config restart when kpatch-build runs
-        shutil.copyfile(os.path.join(kernel_source_dir, '.config'), os.path.join(self.base_dir, 'config'))
+        shutil.copyfile(os.path.join(kernel_source_dir, '.config'), self.base_config_path)
         _command(['make'], kernel_source_dir)
         _command(['make', 'modules'], kernel_source_dir)
 
