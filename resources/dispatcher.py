@@ -115,27 +115,25 @@ class GetFiles(Resource):
 
         lpatch = PaTch()
 
-        print("file get config: " + str(file_args))
-        configFile = file_args['config']
-        configFile_name = file_args['config'].filename
-
-        # saving config file
-        configFile_name = os.path.join('/tmp','elivepatch-' + args['UUID'], configFile_name)
-        if os.path.exists('/tmp/elivepatch-' + args['UUID']):
-            print('the folder: "/tmp/elivepatch-' + args['UUID'] + '" is already present')
+        uuid_dir = get_uuid_dir(args['UUID'])
+        if os.path.exists(uuid_dir):
+            print('the folder: "' + uuid_dir + '" is already present')
             return {'the request with ' + args['UUID'] + ' is already present'}, 201
         else:
-            print('creating: "/tmp/elivepatch-' + args['UUID'])
-            os.makedirs('/tmp/elivepatch-' + args['UUID'])
+            print('creating: "' + uuid_dir + '"')
+            os.makedirs(uuid_dir)
 
+        print("file get config: " + str(file_args))
+        configFile = file_args['config']
+        # saving config file
+        configFile_name = os.path.join(uuid_dir, file_args['config'].filename)
         configFile.save(configFile_name)
 
-
         # saving incremental patches
-        incremental_patches_directory = os.path.join('/tmp', 'elivepatch-' + args['UUID'], 'etc', 'portage', 'patches',
+        incremental_patches_directory = os.path.join(uuid_dir, 'etc', 'portage', 'patches',
                                                      'sys-kernel', 'gentoo-sources')
         if os.path.exists(incremental_patches_directory):
-            print('the folder: "/tmp/elivepatch-' + args['UUID'] + '" is already present')
+            print('the folder: "' + uuid_dir + '" is already present')
             return {'the request with ' + args['UUID'] + ' is already present'}, 201
         else:
             print('creating: '+incremental_patches_directory)
@@ -154,7 +152,7 @@ class GetFiles(Resource):
         print(str(file_args['main_patch']))
         main_patchfile = file_args['main_patch'][0]
         main_patchfile_name = main_patchfile.filename
-        main_patch_fulldir_name = os.path.join('/tmp','elivepatch-' + args['UUID'], main_patchfile_name)
+        main_patch_fulldir_name = os.path.join(uuid_dir, main_patchfile_name)
         main_patchfile.save(main_patch_fulldir_name)
 
         # check vmlinux presence if not rebuild the kernel
