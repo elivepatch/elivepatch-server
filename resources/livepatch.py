@@ -13,26 +13,24 @@ import shutil
 
 class PaTch(object):
 
-    def __init__(self):
-        pass
+    def __init__(self, base_dir):
+        self.base_dir = base_dir
 
-    def build_livepatch(self, uuid, vmlinux, debug=True):
+    def build_livepatch(self, vmlinux, debug=True):
         """
         Function for building the livepatch
 
-        :param uuid: UUID session identification
         :param vmlinux: path to the vmlinux file
-        :param debug: copy build.log in the uuid directory
+        :param debug: copy build.log in the base directory
         :return: void
         """
-        kernel_source = os.path.join('/tmp/', 'elivepatch-' + uuid, 'usr/src/linux/')
-        uuid_dir = os.path.join('/tmp/', 'elivepatch-' + uuid)
+        kernel_source = os.path.join(self.base_dir, 'usr/src/linux/')
         vmlinux_source = os.path.join(kernel_source, vmlinux)
-        kpatch_cachedir = os.path.join(uuid_dir, 'kpatch')
+        kpatch_cachedir = os.path.join(self.base_dir, 'kpatch')
 
         os.makedirs(kpatch_cachedir)
         if not os.path.isfile(vmlinux_source):
-            self.build_kernel(uuid)
+            self.build_kernel()
 
         bashCommand = ['kpatch-build']
         bashCommand.extend(['-s', kernel_source])
@@ -43,11 +41,11 @@ class PaTch(object):
         if debug:
             bashCommand.extend(['--skip-cleanup'])
             bashCommand.extend(['--debug'])
-        _command(bashCommand, uuid_dir, {'CACHEDIR': kpatch_cachedir})
+        _command(bashCommand, self.base_dir, {'CACHEDIR': kpatch_cachedir})
         if debug:
-            shutil.copy(os.path.join(kpatch_cachedir, 'build.log'), uuid_dir)
+            shutil.copy(os.path.join(kpatch_cachedir, 'build.log'), self.base_dir)
 
-    def get_kernel_sources(self, uuid, kernel_version, debug=True):
+    def get_kernel_sources(self, kernel_version, debug=True):
         """
         Function for download the kernel sources
 
@@ -58,27 +56,26 @@ class PaTch(object):
         except:
             print('git clone failed.')
 
-        uuid_dir = os.path.join('/tmp/', 'elivepatch-' + uuid)
         ebuild_path = os.path.join('gentoo-sources_overlay', 'sys-kernel', 'gentoo-sources', 'gentoo-sources-' +
                                    kernel_version + '.ebuild')
         print(ebuild_path)
         if os.path.isfile(ebuild_path):
             # Use a private tmpdir for portage
-            with tempfile.TemporaryDirectory(dir=uuid_dir) as portage_tmpdir:
-                print('uuid_dir: ' + str(uuid_dir) + ' PORTAGE_TMPDIR: ' + str(portage_tmpdir))
+            with tempfile.TemporaryDirectory(dir=self.base_dir) as portage_tmpdir:
+                print('base_dir: ' + str(self.base_dir) + ' PORTAGE_TMPDIR: ' + str(portage_tmpdir))
                 # portage_tmpdir is not always working with root privileges
                 if debug:
                     if os.geteuid() != 0:
-                        env = {'ROOT': uuid_dir, 'PORTAGE_CONFIGROOT': uuid_dir, 'PORTAGE_TMPDIR': portage_tmpdir,
+                        env = {'ROOT': self.base_dir, 'PORTAGE_CONFIGROOT': self.base_dir, 'PORTAGE_TMPDIR': portage_tmpdir,
                                'PORTAGE_DEBUG': '1'}
                     else:
-                        env = {'ROOT': uuid_dir, 'PORTAGE_CONFIGROOT': uuid_dir, 'PORTAGE_TMPDIR': uuid_dir,
+                        env = {'ROOT': self.base_dir, 'PORTAGE_CONFIGROOT': self.base_dir, 'PORTAGE_TMPDIR': self.base_dir,
                                'PORTAGE_DEBUG': '1'}
                 else:
                     if os.geteuid() != 0:
-                        env = {'ROOT': uuid_dir, 'PORTAGE_CONFIGROOT': uuid_dir, 'PORTAGE_TMPDIR': portage_tmpdir}
+                        env = {'ROOT': self.base_dir, 'PORTAGE_CONFIGROOT': self.base_dir, 'PORTAGE_TMPDIR': portage_tmpdir}
                     else:
-                        env = {'ROOT': uuid_dir, 'PORTAGE_CONFIGROOT': uuid_dir, 'PORTAGE_TMPDIR': uuid_dir}
+                        env = {'ROOT': self.base_dir, 'PORTAGE_CONFIGROOT': self.base_dir, 'PORTAGE_TMPDIR': self.base_dir}
                 _command(['ebuild', ebuild_path, 'digest', 'clean', 'merge'], env=env)
                 kernel_sources_status = True
         else:
@@ -86,9 +83,9 @@ class PaTch(object):
             kernel_sources_status = None
         return kernel_sources_status
 
-    def build_kernel(self, uuid):
-        kernel_source_dir = '/tmp/elivepatch-' + uuid + '/usr/src/linux/'
-        uuid_dir_config = '/tmp/elivepatch-' + uuid + '/config'
+    def build_kernel(self):
+        kernel_source_dir = self.base_dir + '/usr/src/linux/'
+        uuid_dir_config = self.base_dir + '/config'
         if 'CONFIG_DEBUG_INFO=y' in open(uuid_dir_config).read():
             print("DEBUG_INFO correctly present")
         elif 'CONFIG_DEBUG_INFO=n' in open(uuid_dir_config).read():
@@ -99,12 +96,12 @@ class PaTch(object):
             print("Adding DEBUG_INFO for getting kernel debug symbols")
             for line in fileinput.input(uuid_dir_config, inplace=1):
                 print(line.replace("# CONFIG_DEBUG_INFO is not set", "CONFIG_DEBUG_INFO=y"))
-        shutil.copyfile('/tmp/elivepatch-' + uuid + '/config', kernel_source_dir + '.config')
+        shutil.copyfile(self.base_dir + '/config', kernel_source_dir + '.config')
         # olddefconfig default everything that is new from the configuration file
         _command(['make', 'olddefconfig'], kernel_source_dir)
         # copy the olddefconfig generated config file back,
         # so that we don't trigger a config restart when kpatch-build runs
-        shutil.copyfile(kernel_source_dir + '.config', '/tmp/elivepatch-' + uuid + '/config')
+        shutil.copyfile(kernel_source_dir + '.config', self.base_dir + '/config')
         _command(['make'], kernel_source_dir)
         _command(['make', 'modules'], kernel_source_dir)
 

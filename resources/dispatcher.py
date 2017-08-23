@@ -113,8 +113,6 @@ class GetFiles(Resource):
                            location='files')
         file_args = parse.parse_args()
 
-        lpatch = PaTch()
-
         uuid_dir = get_uuid_dir(args['UUID'])
         if os.path.exists(uuid_dir):
             print('the folder: "' + uuid_dir + '" is already present')
@@ -122,6 +120,8 @@ class GetFiles(Resource):
         else:
             print('creating: "' + uuid_dir + '"')
             os.makedirs(uuid_dir)
+
+        lpatch = PaTch(uuid_dir)
 
         print("file get config: " + str(file_args))
         configFile = file_args['config']
@@ -156,10 +156,10 @@ class GetFiles(Resource):
         main_patchfile.save(main_patch_fulldir_name)
 
         # check vmlinux presence if not rebuild the kernel
-        kernel_sources_status = lpatch.get_kernel_sources(args['UUID'], args['KernelVersion'])
+        kernel_sources_status = lpatch.get_kernel_sources(args['KernelVersion'])
         if not kernel_sources_status:
             return make_response(jsonify({'message': 'gentoo-sources not available'}), 403)
-        lpatch.build_livepatch(args['UUID'], 'vmlinux')
+        lpatch.build_livepatch('vmlinux')
 
         pack = {
            'id': packs['id'] + 1,
