@@ -12,7 +12,7 @@ import werkzeug
 from flask import jsonify, make_response
 from flask_restful import Resource, reqparse, fields, marshal
 
-from elivepatch_server.resources.livepatch import PaTch
+from resources.livepatch import PaTch
 
 pack_fields = {
     'KernelVersion': fields.String,
