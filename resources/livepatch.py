@@ -17,6 +17,8 @@ class PaTch(object):
         self.base_dir = base_dir
         self.base_config_path = base_config_path
 
+        self.__kernel_source_dir__ = os.path.join(self.base_dir, 'usr/src/linux/')
+
     def build_livepatch(self, vmlinux, debug=True):
         """
         Function for building the livepatch
@@ -25,8 +27,7 @@ class PaTch(object):
         :param debug: copy build.log in the base directory
         :return: void
         """
-        kernel_source = os.path.join(self.base_dir, 'usr/src/linux/')
-        vmlinux_source = os.path.join(kernel_source, vmlinux)
+        vmlinux_source = os.path.join(self.__kernel_source_dir__, vmlinux)
         kpatch_cachedir = os.path.join(self.base_dir, 'kpatch')
 
         os.makedirs(kpatch_cachedir)
@@ -34,7 +35,7 @@ class PaTch(object):
             self.build_kernel()
 
         bashCommand = ['kpatch-build']
-        bashCommand.extend(['-s', kernel_source])
+        bashCommand.extend(['-s', self.__kernel_source_dir__])
         bashCommand.extend(['-v', vmlinux_source])
         bashCommand.extend(['-c', 'config'])
         bashCommand.extend(['main.patch'])
@@ -85,8 +86,6 @@ class PaTch(object):
         return kernel_sources_status
 
     def build_kernel(self):
-        kernel_source_dir = os.path.join(self.base_dir, 'usr/src/linux/')
-
         if 'CONFIG_DEBUG_INFO=y' in open(self.base_config_path).read():
             print("DEBUG_INFO correctly present")
         elif 'CONFIG_DEBUG_INFO=n' in open(self.base_config_path).read():
@@ -97,14 +96,14 @@ class PaTch(object):
             print("Adding DEBUG_INFO for getting kernel debug symbols")
             for line in fileinput.input(self.base_config_path, inplace=1):
                 print(line.replace("# CONFIG_DEBUG_INFO is not set", "CONFIG_DEBUG_INFO=y"))
-        shutil.copyfile(self.base_config_path, os.path.join(kernel_source_dir, '.config'))
+        shutil.copyfile(self.base_config_path, os.path.join(self.__kernel_source_dir__, '.config'))
         # olddefconfig default everything that is new from the configuration file
-        _command(['make', 'olddefconfig'], kernel_source_dir)
+        _command(['make', 'olddefconfig'], self.__kernel_source_dir__)
         # copy the olddefconfig generated config file back,
         # so that we don't trigger a config restart when kpatch-build runs
-        shutil.copyfile(os.path.join(kernel_source_dir, '.config'), self.base_config_path)
-        _command(['make'], kernel_source_dir)
-        _command(['make', 'modules'], kernel_source_dir)
+        shutil.copyfile(os.path.join(self.__kernel_source_dir__, '.config'), self.base_config_path)
+        _command(['make'], self.__kernel_source_dir__)
+        _command(['make', 'modules'], self.__kernel_source_dir__)
 
 
 def _command(bashCommand, kernel_source_dir=None, env=None):
