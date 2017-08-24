@@ -128,10 +128,10 @@ def _command(bashCommand, kernel_source_dir=None, env=None):
             process = subprocess.Popen(bashCommand, stdout=subprocess.PIPE,  cwd=kernel_source_dir, env=env)
             output, error = process.communicate()
             for output_line in output.split(b'\n'):
-                print(output_line.strip())
+                print(output_line.strip().decode("utf-8"))
         else:
             print(bashCommand)
             process = subprocess.Popen(bashCommand, stdout=subprocess.PIPE, env=env)
             output, error = process.communicate()
             for output_line in output.split(b'\n'):
-                print(output_line.strip())
+                print(output_line.strip().decode("utf-8"))
