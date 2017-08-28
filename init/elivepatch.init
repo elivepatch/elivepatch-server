@@ -9,13 +9,13 @@ DAEMON_NAME=elivepatch-server
 PIDFILE=/var/run/${DAEMON_NAME}.pid
 
 start () {
-    ebegin "Starting system $DAEMON_NAME daemon"
+    ebegin "Starting system ${DAEMON_NAME} daemon"
     start-stop-daemon --start --background --pidfile ${PIDFILE} --user ${DAEMON_USER} --make-pidfile --exec ${DAEMON} runserver
-    eend $? "Failed to start $DAEMON_NAME"
+    eend $? "Failed to start ${DAEMON_NAME}"
 }
 
 stop () {
-    ebegin "Stopping system $DAEMON_NAME daemon"
+    ebegin "Stopping system ${DAEMON_NAME} daemon"
     start-stop-daemon --stop --pidfile ${PIDFILE} --user ${DAEMON_USER} --retry 10
-    eend $? "Failed to stop $DAEMON_NAME"
+    eend $? "Failed to stop ${DAEMON_NAME}"
 }
