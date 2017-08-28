@@ -1,0 +1,26 @@
+#!/sbin/openrc-run
+
+depend() {
+        need net
+}
+
+DIR=/usr/bin/
+DAEMON=${DIR}/elivepatch-server
+DAEMON_NAME=elivepatch-server
+PIDFILE=/var/run/${DAEMON_NAME}.pid
+
+# If we want to start the script with a different user.
+DAEMON_USER=root
+
+
+start () {
+    ebegin "Starting system $DAEMON_NAME daemon"
+    start-stop-daemon --start --background --pidfile ${PIDFILE} --make-pidfile --exec ${DAEMON} runserver
+    eend $? "Failed to start $DAEMON_NAME"
+}
+
+stop () {
+    ebegin "Stopping system $DAEMON_NAME daemon"
+    start-stop-daemon --stop --pidfile ${PIDFILE} --retry 10
+    eend $? "Failed to stop $DAEMON_NAME"
+}
