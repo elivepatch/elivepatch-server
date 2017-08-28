@@ -4,14 +4,9 @@ depend() {
         need net
 }
 
-DIR=/usr/bin/
-DAEMON=${DIR}/elivepatch-server
+DAEMON=/usr/bin/elivepatch-server
 DAEMON_NAME=elivepatch-server
 PIDFILE=/var/run/${DAEMON_NAME}.pid
-
-# If we want to start the script with a different user.
-DAEMON_USER=root
-
 
 start () {
     ebegin "Starting system $DAEMON_NAME daemon"
