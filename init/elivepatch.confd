@@ -1,2 +1,2 @@
 # /etc/conf.d/elivepatch
-DAEMON_USER=root
+DAEMON_USER=root:root
