@@ -5,14 +5,12 @@
 # Distributed under the terms of the GNU General Public License v2 or later
 
 
-import re
-
 import os
+import re
 import werkzeug
 from flask import jsonify, make_response
 from flask_restful import Resource, reqparse, fields, marshal
-
-from resources.livepatch import PaTch
+from .livepatch import PaTch
 
 pack_fields = {
     'KernelVersion': fields.String,

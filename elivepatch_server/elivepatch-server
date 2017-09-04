@@ -7,8 +7,7 @@
 
 from flask import Flask
 from flask_restful import Api
-from resources import AgentInfo, dispatcher
-
+from elivepatch_server.resources import AgentInfo, dispatcher
 
 def create_app():
     """
