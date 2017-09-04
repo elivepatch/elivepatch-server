@@ -4,7 +4,7 @@ setup(
     name='elivepatch_server',
     version='0.01',
     description='Distributed elivepatch server API',
-    url='https://wiki.gentoo.org/wiki/User:Aliceinwire/elivepatch, ' + \
+    url='https://wiki.gentoo.org/wiki/Elivepatch, ' + \
         'https://github.com/aliceinwire/elivepatch-server',
 
     classifiers=[
