@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='elivepatch_server',
-    version='0.01',
+    version='0.1',
     description='Distributed elivepatch server API',
     url='https://wiki.gentoo.org/wiki/Elivepatch, ' + \
         'https://github.com/aliceinwire/elivepatch-server',
