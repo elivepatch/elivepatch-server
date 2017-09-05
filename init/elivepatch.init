@@ -8,13 +8,17 @@ DAEMON=/usr/bin/elivepatch-server
 DAEMON_NAME=elivepatch-server
 PIDFILE=/var/run/${DAEMON_NAME}.pid
 
+start_pre() {
+	checkpath -d -o ${DAEMON_USER}:${DAEMON_GROUP} /var/log/${DAEMON_NAME}
+}
+
 start () {
     ebegin "Starting system ${DAEMON_NAME} daemon"
     start-stop-daemon --start --background --pidfile ${PIDFILE} \
     --user ${DAEMON_USER}:${DAEMON_GROUP} \
     --make-pidfile \
-    --stdout /var/log/elivepatch-server.log \
-    --stderr /var/log/elivepatch-server.err \
+    --stdout /var/log/${DAEMON_NAME}/${DAEMON_NAME}.log \
+    --stderr /var/log/${DAEMON_NAME}/${DAEMON_NAME}.err \
     --exec ${DAEMON} runserver
     eend $? "Failed to start ${DAEMON_NAME}"
 }
