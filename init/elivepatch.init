@@ -10,7 +10,12 @@ PIDFILE=/var/run/${DAEMON_NAME}.pid
 
 start () {
     ebegin "Starting system ${DAEMON_NAME} daemon"
-    start-stop-daemon --start --background --pidfile ${PIDFILE} --user ${DAEMON_USER}:${DAEMON_GROUP} --make-pidfile --exec ${DAEMON} runserver
+    start-stop-daemon --start --background --pidfile ${PIDFILE} \
+    --user ${DAEMON_USER}:${DAEMON_GROUP} \
+    --make-pidfile \
+    --stdout /var/log/elivepatch-server.log \
+    --stderr /var/log/elivepatch-server.err \
+    --exec ${DAEMON} runserver
     eend $? "Failed to start ${DAEMON_NAME}"
 }
 
