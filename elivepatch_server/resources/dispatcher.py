@@ -166,3 +166,6 @@ class GetFiles(Resource):
             'UUID' : args['UUID']
         }
         return {'get_config': marshal(pack, pack_fields)}, 201
+
+    def __del__(self):
+        print('deleting function')
