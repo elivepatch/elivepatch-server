@@ -44,9 +44,13 @@ def check_uuid(uuid):
         print('uuid format is not correct')
 
 
-def get_uuid_dir(uuid):
+def get_tmp_uuid_dir(uuid):
     return os.path.join('/tmp/', 'elivepatch-' + uuid)
 
+def get_cache_uuid_dir(uuid, filename):
+    livepatch_folder = os.path.join('/tmp/', 'livepatch-' + uuid)
+    livepatch_file = os.path.join(livepatch_folder, filename)
+    return livepatch_folder, livepatch_file
 
 class SendLivePatch(Resource):
 
@@ -66,11 +70,9 @@ class SendLivePatch(Resource):
         print("get livepatch: " + str(args))
         # check if is a valid UUID request
         args['UUID'] = check_uuid(args['UUID'])
-        uuid_dir = get_uuid_dir(args['UUID'])
-
-        livepatch_full_path = os.path.join(uuid_dir, 'kpatch-main.ko')
+        livepatch_saving_folder, livepatch_saving_file = get_cache_uuid_dir(args['UUID'], 'livepatch.ko')
         try:
-            with open(livepatch_full_path, 'rb') as fp:
+            with open(livepatch_saving_file, 'rb') as fp:
                 response = make_response(fp.read())
                 response.headers['content-type'] = 'application/octet-stream'
                 return response
@@ -113,7 +115,7 @@ class GetFiles(Resource):
                            location='files')
         file_args = parse.parse_args()
 
-        uuid_dir = get_uuid_dir(args['UUID'])
+        uuid_dir = get_tmp_uuid_dir(args['UUID'])
         if os.path.exists(uuid_dir):
             print('the folder: "' + uuid_dir + '" is already present')
             return {'the request with ' + args['UUID'] + ' is already present'}, 201
@@ -161,9 +163,8 @@ class GetFiles(Resource):
             return make_response(jsonify({'message': 'gentoo-sources not available'}), 403)
         lpatch.build_livepatch('vmlinux', jobs=self.cmdline_args.jobs)
         livepatch_full_path = os.path.join(uuid_dir, 'kpatch-main.ko')
-        livepatch_saving_folder = os.path.join('/tmp/','livepatch',args['UUID'])
-        livepatch_saving_file = os.path.join(livepatch_saving_folder, args['UUID'],'livepatch.ko')
-        if os.path.exists(uuid_dir):
+        livepatch_saving_folder, livepatch_saving_file = get_cache_uuid_dir(args['UUID'], 'livepatch.ko')
+        if os.path.exists(livepatch_saving_folder):
             print('saving livepatch to: '+ str(livepatch_saving_file))
             try:
                 shutil.move(livepatch_full_path, livepatch_saving_file)
@@ -171,7 +172,7 @@ class GetFiles(Resource):
                 print('live patch not generated')
                 print('check build.log at:' + str(livepatch_saving_folder + '/build.log'))
                 try:
-                    shutil.move(uuid_dir + '/build.log', livepatch_saving_folder + '/build.log')
+                    shutil.move(uuid_dir + '/kpatch/build.log', livepatch_saving_folder + '/build.log')
                 except:
                     print('no build.log generated')
         else:
@@ -184,7 +185,7 @@ class GetFiles(Resource):
                 print('live patch not generated')
                 print('check build.log at:' + str(livepatch_saving_folder + '/build.log'))
                 try:
-                    shutil.move(uuid_dir + '/build.log', livepatch_saving_folder + '/build.log')
+                    shutil.move(uuid_dir + '/kpatch/build.log', livepatch_saving_folder + '/build.log')
                 except:
                     print('no build.log generated')
 
@@ -197,5 +198,5 @@ class GetFiles(Resource):
 
     def __del__(self):
         args = self.reqparse.parse_args()
-        print('deleting folder: '+ get_uuid_dir(args['UUID']))
-        shutil.rmtree(get_uuid_dir(args['UUID']))
+        print('deleting folder: '+ get_tmp_uuid_dir(args['UUID']))
+        shutil.rmtree(get_tmp_uuid_dir(args['UUID']))
