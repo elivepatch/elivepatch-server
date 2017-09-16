@@ -8,6 +8,7 @@
 import os
 import re
 import werkzeug
+import shutil
 from flask import jsonify, make_response
 from flask_restful import Resource, reqparse, fields, marshal
 from .livepatch import PaTch
@@ -159,6 +160,33 @@ class GetFiles(Resource):
         if not kernel_sources_status:
             return make_response(jsonify({'message': 'gentoo-sources not available'}), 403)
         lpatch.build_livepatch('vmlinux', jobs=self.cmdline_args.jobs)
+        livepatch_full_path = os.path.join(uuid_dir, 'kpatch-main.ko')
+        livepatch_saving_folder = os.path.join('/tmp/','livepatch',args['UUID'])
+        livepatch_saving_file = os.path.join(livepatch_saving_folder, args['UUID'],'livepatch.ko')
+        if os.path.exists(uuid_dir):
+            print('saving livepatch to: '+ str(livepatch_saving_file))
+            try:
+                shutil.move(livepatch_full_path, livepatch_saving_file)
+            except:
+                print('live patch not generated')
+                print('check build.log at:' + str(livepatch_saving_folder + '/build.log'))
+                try:
+                    shutil.move(uuid_dir + '/build.log', livepatch_saving_folder + '/build.log')
+                except:
+                    print('no build.log generated')
+        else:
+            print('creating: "' + str(livepatch_saving_folder) + '"')
+            os.makedirs(livepatch_saving_folder)
+            print('saving livepatch to: '+ str(livepatch_saving_file))
+            try:
+                shutil.move(livepatch_full_path, livepatch_saving_file)
+            except:
+                print('live patch not generated')
+                print('check build.log at:' + str(livepatch_saving_folder + '/build.log'))
+                try:
+                    shutil.move(uuid_dir + '/build.log', livepatch_saving_folder + '/build.log')
+                except:
+                    print('no build.log generated')
 
         pack = {
            'id': packs['id'] + 1,
@@ -168,4 +196,6 @@ class GetFiles(Resource):
         return {'get_config': marshal(pack, pack_fields)}, 201
 
     def __del__(self):
-        print('deleting function')
+        args = self.reqparse.parse_args()
+        print('deleting folder: '+ get_uuid_dir(args['UUID']))
+        shutil.rmtree(get_uuid_dir(args['UUID']))
