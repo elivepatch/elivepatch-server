@@ -43,7 +43,7 @@ class PaTch(object):
                        'main.patch']
         if debug:
             bashCommand.extend(['--skip-cleanup'])
-            bashCommand.extend(['--debug'])
+            bashCommand.extend(['-dddd'])
         _command(bashCommand, self.base_dir, {'CACHEDIR': kpatch_cachedir})
         if debug:
             shutil.copy(os.path.join(kpatch_cachedir, 'build.log'), self.base_dir)
