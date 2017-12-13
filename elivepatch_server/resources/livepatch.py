@@ -39,6 +39,7 @@ class PaTch(object):
                        '-v', vmlinux_source,
                        '-j', str(jobs),
                        '-c', 'config',
+                       '-n', 'elivepatch-main',
                        '--skip-gcc-check',
                        'main.patch']
         if debug:
