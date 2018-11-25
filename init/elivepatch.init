@@ -4,8 +4,8 @@ depend() {
         need net
 }
 
-DAEMON=/usr/bin/elivepatch-server
-DAEMON_NAME=elivepatch-server
+DAEMON=/usr/bin/elivepatch_server
+DAEMON_NAME=elivepatch_server
 PIDFILE=/var/run/${DAEMON_NAME}.pid
 
 start_pre() {

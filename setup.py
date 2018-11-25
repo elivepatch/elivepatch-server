@@ -28,5 +28,5 @@ setup(
     author_email='alice.ferrazzi@gmail.com',
     license='GNU GPLv2+',
     packages=['elivepatch_server','elivepatch_server.resources'],
-    scripts=['elivepatch_server/elivepatch-server'],
+    scripts=['elivepatch_server/elivepatch_server'],
 )
