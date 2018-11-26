@@ -16,19 +16,22 @@ def parse_args():
     parser = argparse.ArgumentParser()
 
     parser.add_argument('-j', '--jobs', type=int,
-                        default=multiprocessing.cpu_count())
+                        default=multiprocessing.cpu_count(),
+                        help='Specify the number of make jobs')
 
     parser.add_argument('-H', '--host', type=str,
-                        default='0.0.0.0')
+                        default='0.0.0.0',
+                        help='Specify the host')
 
     parser.add_argument('-P', '--port', type=int,
-                        default='5000')
+                        default='5000',
+                        help='Specify the port')
 
-    parser.add_argument('-T', '--threaded', type=bool,
-                        default=True)
+    parser.add_argument('-T', '--threaded', action='store_true',
+                        help='Enable threading')
 
-    parser.add_argument('-d', '--debug', type=bool,
-                        default=False)
+    parser.add_argument('-d', '--debug', action='store_true',
+                        help='Enable debugging')
 
     return parser.parse_args()
 
