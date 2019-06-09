@@ -1,4 +1,7 @@
 # elivepatch-server
+[![Build Status](https://travis-ci.org/gentoo/elivepatch-server.svg?branch=master)](https://travis-ci.org/gentoo/elivepatch-server)
+![Maintainability](https://api.codeclimate.com/v1/badges/d79ff85d840722dbc9d6/maintainability)](https://codeclimate.com/github/gentoo/elivepatch-server/maintainability)
+
 Flexible Distributed Linux Kernel Live Patching
 
 
