@@ -1,4 +1,4 @@
-from elivepatch_server.elivepatch_server import create_app
+from elivepatch_server import create_app
 import pytest
 from flask_restful import Api as api
 from conftest import app
@@ -21,7 +21,7 @@ class TestIntegrations(unittest.TestCase):
     def test_not_found(self):
         response = self.app.get('/')
         assert response.status_code == 404
-    
+
     def test_found(self):
         response = self.app.get('/elivepatch/api/')
         assert response.status_code == 200
