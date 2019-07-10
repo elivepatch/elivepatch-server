@@ -1,8 +1,8 @@
 # elivepatch-server
 [![Build Status](https://travis-ci.org/gentoo/elivepatch-server.svg?branch=master)](https://travis-ci.org/gentoo/elivepatch-server)
 [![Maintainability](https://api.codeclimate.com/v1/badges/d79ff85d840722dbc9d6/maintainability)](https://codeclimate.com/github/gentoo/elivepatch-server/maintainability)
-[![Docker Pulls](https://img.shields.io/docker/pulls/alice2f/elivepatch-server_gentoo.svg?style=plastic)](https://hub.docker.com/r/alice2f/elivepatch-server_gentoo)
-[![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/alice2f/elivepatch-server_gentoo.svg)](https://hub.docker.com/r/alice2f/elivepatch-server_gentoo)
+[![Docker Pulls](https://img.shields.io/docker/pulls/alice2f/elivepatch-server.svg?style=plastic)](https://hub.docker.com/r/alice2f/elivepatch-server)
+[![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/alice2f/elivepatch-server.svg)](https://hub.docker.com/r/alice2f/elivepatch-server)
 
 Flexible Distributed Linux Kernel Live Patching
 
