@@ -6,6 +6,10 @@
 
 Flexible Distributed Linux Kernel Live Patching
 
+## System Dependencies
+`elivepatch-server` needs the correct toolchain to build a Linux Kernel and the following software:
+- [kpatch](https://github.com/dynup/kpatch)
+- [git](https://git-scm.com/)
 
 ## Setup
 `elivepatch-server` is a [flask](https://www.palletsprojects.com/p/flask/)-based application.
