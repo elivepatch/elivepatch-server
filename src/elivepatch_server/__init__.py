@@ -84,8 +84,6 @@ def run():
     if cmdline_args.ssl_cert == 'adhoc':
         kwargs['ssl_context'] = 'adhoc'
 
-    print(kwargs)
-
     app.run(**kwargs)
 
 

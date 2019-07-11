@@ -9,6 +9,7 @@ import os
 import fileinput
 import tempfile
 import shutil
+import logging
 
 
 class PaTch(object):
@@ -58,15 +59,15 @@ class PaTch(object):
         try:
             _command(['git', 'clone', 'https://github.com/aliceinwire/gentoo-sources_overlay.git'])
         except:
-            print('git clone failed.')
+            logging.error('git clone failed.')
 
         ebuild_path = os.path.join('gentoo-sources_overlay', 'sys-kernel', 'gentoo-sources', 'gentoo-sources-' +
                                    kernel_version + '.ebuild')
-        print(ebuild_path)
+        logging.info(ebuild_path)
         if os.path.isfile(ebuild_path):
             # Use a private tmpdir for portage
             with tempfile.TemporaryDirectory(dir=self.base_dir) as portage_tmpdir:
-                print('base_dir: ' + str(self.base_dir) + ' PORTAGE_TMPDIR: ' + str(portage_tmpdir))
+                logging.info('base_dir: ' + str(self.base_dir) + ' PORTAGE_TMPDIR: ' + str(portage_tmpdir))
                 # portage_tmpdir is not always working with root privileges
                 if debug:
                     if os.geteuid() != 0:
@@ -83,7 +84,7 @@ class PaTch(object):
                 _command(['ebuild', ebuild_path, 'digest', 'clean', 'merge'], env=env)
                 kernel_sources_status = True
         else:
-            print('ebuild not present')
+            logging.error('ebuild not present')
             kernel_sources_status = None
         return kernel_sources_status
 
@@ -91,15 +92,17 @@ class PaTch(object):
         kernel_config_path = os.path.join(self.__kernel_source_dir__, '.config')
 
         if 'CONFIG_DEBUG_INFO=y' in open(self.base_config_path).read():
-            print("DEBUG_INFO correctly present")
+            logging.debug("DEBUG_INFO correctly present")
         elif 'CONFIG_DEBUG_INFO=n' in open(self.base_config_path).read():
-            print("changing DEBUG_INFO to yes")
+            logging.debug("changing DEBUG_INFO to yes")
             for line in fileinput.input(self.base_config_path, inplace=1):
-                print(line.replace("CONFIG_DEBUG_INFO=n", "CONFIG_DEBUG_INFO=y"))
+                out = line.replace("CONFIG_DEBUG_INFO=n", "CONFIG_DEBUG_INFO=y")
+                logging.debug(out)
         else:
-            print("Adding DEBUG_INFO for getting kernel debug symbols")
+            logging.debug("Adding DEBUG_INFO for getting kernel debug symbols")
             for line in fileinput.input(self.base_config_path, inplace=1):
-                print(line.replace("# CONFIG_DEBUG_INFO is not set", "CONFIG_DEBUG_INFO=y"))
+                out = line.replace("# CONFIG_DEBUG_INFO is not set", "CONFIG_DEBUG_INFO=y")
+                logging.debug(out)
         shutil.copyfile(self.base_config_path, kernel_config_path)
         # olddefconfig default everything that is new from the configuration file
         _command(['make', 'olddefconfig'], self.__kernel_source_dir__)
@@ -126,14 +129,14 @@ def _command(bashCommand, kernel_source_dir=None, env=None):
             env = process_env
 
         if kernel_source_dir:
-            print(bashCommand)
+            logging.info(bashCommand)
             process = subprocess.Popen(bashCommand, stdout=subprocess.PIPE,  cwd=kernel_source_dir, env=env)
             output, error = process.communicate()
             for output_line in output.split(b'\n'):
-                print(output_line.strip().decode("utf-8"))
+                logging.info(output_line.strip().decode("utf-8"))
         else:
-            print(bashCommand)
+            logging.info(bashCommand)
             process = subprocess.Popen(bashCommand, stdout=subprocess.PIPE, env=env)
             output, error = process.communicate()
             for output_line in output.split(b'\n'):
-                print(output_line.strip().decode("utf-8"))
+                logging.info(output_line.strip().decode("utf-8"))

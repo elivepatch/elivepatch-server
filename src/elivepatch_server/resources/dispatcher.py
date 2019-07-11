@@ -8,6 +8,8 @@
 import os
 import re
 import werkzeug
+import logging
+
 from flask import jsonify, make_response
 from flask_restful import Resource, reqparse, fields, marshal
 from .livepatch import PaTch
@@ -32,15 +34,15 @@ def check_uuid(uuid):
     :return:
     """
     if not uuid:
-        print('uuid is missing')
+        logging.error('uuid is missing')
     else:
         # check uuid format
         prog = re.compile('^\w{8}-\w{4}-\w{4}-\w{4}-\w{12}$')
         result = prog.match(uuid)
         if result:
-            print('UUID: ' + str(uuid))
+            logging.debug('UUID: ' + str(uuid))
             return uuid
-        print('uuid format is not correct')
+        logging.error('uuid format is not correct')
 
 
 def get_uuid_dir(uuid):
@@ -62,7 +64,7 @@ class SendLivePatch(Resource):
 
     def get(self):
         args = self.reqparse.parse_args()
-        print("get livepatch: " + str(args))
+        logging.debug("get livepatch: " + str(args))
         # check if is a valid UUID request
         args['UUID'] = check_uuid(args['UUID'])
         uuid_dir = get_uuid_dir(args['UUID'])
@@ -114,13 +116,13 @@ class GetFiles(Resource):
 
         uuid_dir = get_uuid_dir(args['UUID'])
         if os.path.exists(uuid_dir):
-            print('the folder: "' + uuid_dir + '" is already present')
+            logging.debug('the folder: "' + uuid_dir + '" is already present')
             return {'the request with ' + args['UUID'] + ' is already present'}, 201
         else:
-            print('creating: "' + uuid_dir + '"')
+            logging.debug('creating: "' + uuid_dir + '"')
             os.makedirs(uuid_dir)
 
-        print("file get config: " + str(file_args))
+        logging.info("file get config: " + str(file_args))
         configFile = file_args['config']
         # saving config file
         configFile_name = os.path.join(uuid_dir, file_args['config'].filename)
@@ -132,23 +134,23 @@ class GetFiles(Resource):
         incremental_patches_directory = os.path.join(uuid_dir, 'etc', 'portage', 'patches',
                                                      'sys-kernel', 'gentoo-sources')
         if os.path.exists(incremental_patches_directory):
-            print('the folder: "' + uuid_dir + '" is already present')
+            logging.debug('the folder: "' + uuid_dir + '" is already present')
             return {'the request with ' + args['UUID'] + ' is already present'}, 201
         else:
-            print('creating: '+incremental_patches_directory)
+            logging.debug('creating: '+incremental_patches_directory)
             os.makedirs(incremental_patches_directory)
         try:
             for patch in file_args['patch']:
-                print(str(patch))
+                logging.debug(str(patch))
                 patchfile = patch
                 patchfile_name = patch.filename
                 patch_fulldir_name = os.path.join(incremental_patches_directory, patchfile_name)
                 patchfile.save(patch_fulldir_name)
         except:
-            print('no incremental patches')
+            logging.error('no incremental patches')
 
         # saving main patch
-        print(str(file_args['main_patch']))
+        logging.info(str(file_args['main_patch']))
         main_patchfile = file_args['main_patch'][0]
         main_patchfile_name = main_patchfile.filename
         main_patch_fulldir_name = os.path.join(uuid_dir, main_patchfile_name)
