@@ -157,10 +157,10 @@ class GetFiles(Resource):
         main_patchfile.save(main_patch_fulldir_name)
 
         # check vmlinux presence if not rebuild the kernel
-        kernel_sources_status = lpatch.get_kernel_sources(args['KernelVersion'])
+        kernel_sources_status = lpatch.get_kernel_sources(args['KernelVersion'], debug=self.cmdline_args.debug)
         if not kernel_sources_status:
             return make_response(jsonify({'message': 'gentoo-sources not available'}), 403)
-        lpatch.build_livepatch('vmlinux', jobs=self.cmdline_args.jobs)
+        lpatch.build_livepatch('vmlinux', jobs=self.cmdline_args.jobs, debug=self.cmdline_args.debug)
 
         pack = {
            'id': packs['id'] + 1,
