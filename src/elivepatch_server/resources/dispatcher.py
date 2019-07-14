@@ -146,14 +146,19 @@ class GetFiles(Resource):
             location="files",
         )
         parse.add_argument(
-            "config", type=werkzeug.datastructures.FileStorage, location="files"
+            "config",
+            type=werkzeug.datastructures.FileStorage,
+            location="files",
         )
         file_args = parse.parse_args()
 
         uuid_dir = get_uuid_dir(args["UUID"])
         if os.path.exists(uuid_dir):
             logging.debug('the folder: "' + uuid_dir + '" is already present')
-            return {"the request with " + args["UUID"] + " is already present"}, 201
+            return (
+                {"the request with " + args["UUID"] + " is already present"},
+                201,
+            )
         else:
             logging.debug('creating: "' + uuid_dir + '"')
             os.makedirs(uuid_dir)
@@ -168,11 +173,19 @@ class GetFiles(Resource):
 
         # saving incremental patches
         incremental_patches_directory = os.path.join(
-            uuid_dir, "etc", "portage", "patches", "sys-kernel", "gentoo-sources"
+            uuid_dir,
+            "etc",
+            "portage",
+            "patches",
+            "sys-kernel",
+            "gentoo-sources",
         )
         if os.path.exists(incremental_patches_directory):
             logging.debug('the folder: "' + uuid_dir + '" is already present')
-            return {"the request with " + args["UUID"] + " is already present"}, 201
+            return (
+                {"the request with " + args["UUID"] + " is already present"},
+                201,
+            )
         else:
             logging.debug("creating: " + incremental_patches_directory)
             os.makedirs(incremental_patches_directory)
@@ -204,8 +217,14 @@ class GetFiles(Resource):
                 jsonify({"message": "gentoo-sources not available"}), 403
             )
         lpatch.build_livepatch(
-            "vmlinux", jobs=self.cmdline_args.jobs, debug=self.cmdline_args.debug
+            "vmlinux",
+            jobs=self.cmdline_args.jobs,
+            debug=self.cmdline_args.debug,
         )
 
-        pack = {"id": packs["id"] + 1, "KernelVersion": None, "UUID": args["UUID"]}
+        pack = {
+            "id": packs["id"] + 1,
+            "KernelVersion": None,
+            "UUID": args["UUID"],
+        }
         return {"get_config": marshal(pack, pack_fields)}, 201

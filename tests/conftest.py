@@ -1,7 +1,9 @@
 import sys
 import os.path
 
-sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir))
+sys.path.append(
+    os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir)
+)
 
 from elivepatch_server import create_app
 import pytest
