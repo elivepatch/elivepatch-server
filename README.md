@@ -36,3 +36,9 @@ Will run the server using [werkzeug](https://palletsprojects.com/p/werkzeug/)
 - GetFiles: /elivepatch/api/v1.0/get_files
 
 More information on the REST API is [here](docs/API.md)
+
+## Development
+
+You can use the [docker image](https://github.com/elivepatch/elivepatch-docker) to test your changes without the risk of damaging your system. 
+
+Follow the provided [instructions](https://github.com/elivepatch/elivepatch-docker#basic-development) to set it up.
