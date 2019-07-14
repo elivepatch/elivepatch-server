@@ -10,7 +10,7 @@ import re
 import werkzeug
 import logging
 
-from flask import jsonify, make_response
+from flask import jsonify, make_response, current_app
 from flask_restful import Resource, reqparse, fields, marshal
 from .livepatch import PaTch
 
@@ -72,7 +72,7 @@ class SendLivePatch(Resource):
         try:
             with open(livepatch_full_path, "rb") as fp:
                 response = make_response(fp.read())
-                response.headers["content-type"] = "application/octet-stream"
+                response.headers["content-type"] = ", application/octet-stream"
                 return response
         except:
             return make_response(
@@ -114,7 +114,6 @@ class GetFiles(Resource):
             help="No task title provided",
             location="headers",
         )
-        self.cmdline_args = kwargs["cmdline_args"]
         super(GetFiles, self).__init__()
         pass
 
@@ -130,6 +129,7 @@ class GetFiles(Resource):
         )
 
     def post(self):
+        app = current_app
         args = self.reqparse.parse_args()
         args["UUID"] = check_uuid(args["UUID"])
         parse = reqparse.RequestParser()
@@ -210,16 +210,14 @@ class GetFiles(Resource):
 
         # check vmlinux presence if not rebuild the kernel
         kernel_sources_status = lpatch.get_kernel_sources(
-            args["KernelVersion"], debug=self.cmdline_args.debug
+            args["KernelVersion"], debug=app.config["DEBUG"]
         )
         if not kernel_sources_status:
             return make_response(
                 jsonify({"message": "gentoo-sources not available"}), 403
             )
         lpatch.build_livepatch(
-            "vmlinux",
-            jobs=self.cmdline_args.jobs,
-            debug=self.cmdline_args.debug,
+            "vmlinux", jobs=app.config["ELP_JOBS"], debug=app.config["DEBUG"]
         )
 
         pack = {

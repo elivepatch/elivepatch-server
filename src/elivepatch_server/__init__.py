@@ -12,8 +12,33 @@ from flask import Flask
 from flask_restful import Api
 import multiprocessing
 import argparse
+
 from .resources import AgentInfo, dispatcher
 
+app = Flask(__name__, static_url_path="")
+
+app.config['ELP_JOBS'] = multiprocessing.cpu_count()
+
+api = Api(app)
+
+api.add_resource(AgentInfo.AgentAPI, "/elivepatch/api/", endpoint="root")
+
+# get agento information
+api.add_resource(AgentInfo.AgentAPI, "/elivepatch/api/v1.0/agent", endpoint="agent")
+
+# where to retrieve the live patch when ready
+api.add_resource(
+    dispatcher.SendLivePatch,
+    "/elivepatch/api/v1.0/send_livepatch",
+    endpoint="send_livepatch",
+)
+
+# where to receive the config file
+api.add_resource(
+    dispatcher.GetFiles,
+    "/elivepatch/api/v1.0/get_files",
+    endpoint="config",
+)
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -35,7 +60,7 @@ def parse_args():
     )
 
     parser.add_argument(
-        "-T", "--threaded", action="store_true", help="Enable threading"
+        "-T", "--threaded", action="store_true", help="Enable threading (ignored)"
     )
 
     parser.add_argument(
@@ -59,52 +84,19 @@ def parse_args():
     return parser.parse_args()
 
 
-def create_app(cmdline_args):
-    """
-    Create server application
-    RESTful api version 1.0
-    """
-
-    app = Flask(__name__, static_url_path="")
-    api = Api(app)
-
-    api.add_resource(AgentInfo.AgentAPI, "/elivepatch/api/", endpoint="root")
-
-    # get agento information
-    api.add_resource(
-        AgentInfo.AgentAPI, "/elivepatch/api/v1.0/agent", endpoint="agent"
-    )
-
-    # where to retrieve the live patch when ready
-    api.add_resource(
-        dispatcher.SendLivePatch,
-        "/elivepatch/api/v1.0/send_livepatch",
-        endpoint="send_livepatch",
-    )
-
-    # where to receive the config file
-    api.add_resource(
-        dispatcher.GetFiles,
-        "/elivepatch/api/v1.0/get_files",
-        endpoint="config",
-        resource_class_kwargs={"cmdline_args": cmdline_args},
-    )
-    return app
-
-
 def run():
     cmdline_args = parse_args()
-    app = create_app(cmdline_args)
 
     kwargs = dict(
-        debug=cmdline_args.debug,
         host=cmdline_args.host,
         port=cmdline_args.port,
-        threaded=cmdline_args.threaded,
     )
 
     if cmdline_args.ssl_cert == "adhoc":
         kwargs["ssl_context"] = "adhoc"
+
+    app.config['DEBUG'] = cmdline_args.debug;
+    app.config['ELP_JOBS'] = cmdline_args.jobs;
 
     app.run(**kwargs)
 
