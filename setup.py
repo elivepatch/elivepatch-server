@@ -28,5 +28,7 @@ setup(
     packages=find_packages("src"),
     package_dir={"": "src"},
     install_requires=["flask>=1", "flask_restful"],
-    entry_points={"console_scripts": ["elivepatch-server=elivepatch_server:run"]},
+    entry_points={
+        "console_scripts": ["elivepatch-server=elivepatch_server:run"]
+    },
 )

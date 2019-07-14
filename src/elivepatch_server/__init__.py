@@ -38,7 +38,9 @@ def parse_args():
         "-T", "--threaded", action="store_true", help="Enable threading"
     )
 
-    parser.add_argument("-d", "--debug", action="store_true", help="Enable debugging")
+    parser.add_argument(
+        "-d", "--debug", action="store_true", help="Enable debugging"
+    )
 
     parser.add_argument(
         "-C",
@@ -69,7 +71,9 @@ def create_app(cmdline_args):
     api.add_resource(AgentInfo.AgentAPI, "/elivepatch/api/", endpoint="root")
 
     # get agento information
-    api.add_resource(AgentInfo.AgentAPI, "/elivepatch/api/v1.0/agent", endpoint="agent")
+    api.add_resource(
+        AgentInfo.AgentAPI, "/elivepatch/api/v1.0/agent", endpoint="agent"
+    )
 
     # where to retrieve the live patch when ready
     api.add_resource(

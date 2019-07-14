@@ -17,7 +17,9 @@ class PaTch(object):
         self.base_dir = base_dir
         self.base_config_path = base_config_path
 
-        self.__kernel_source_dir__ = os.path.join(self.base_dir, "usr/src/linux/")
+        self.__kernel_source_dir__ = os.path.join(
+            self.base_dir, "usr/src/linux/"
+        )
 
     def build_livepatch(self, vmlinux, jobs, debug=True):
         """
@@ -54,7 +56,9 @@ class PaTch(object):
             bashCommand.extend(["-dddd"])
         _command(bashCommand, self.base_dir, {"CACHEDIR": kpatch_cachedir})
         if debug:
-            shutil.copy(os.path.join(kpatch_cachedir, "build.log"), self.base_dir)
+            shutil.copy(
+                os.path.join(kpatch_cachedir, "build.log"), self.base_dir
+            )
 
     def get_kernel_sources(self, kernel_version, debug=True):
         """
@@ -82,7 +86,9 @@ class PaTch(object):
         logging.info(ebuild_path)
         if os.path.isfile(ebuild_path):
             # Use a private tmpdir for portage
-            with tempfile.TemporaryDirectory(dir=self.base_dir) as portage_tmpdir:
+            with tempfile.TemporaryDirectory(
+                dir=self.base_dir
+            ) as portage_tmpdir:
                 logging.info(
                     "base_dir: "
                     + str(self.base_dir)
@@ -118,7 +124,10 @@ class PaTch(object):
                             "PORTAGE_CONFIGROOT": self.base_dir,
                             "PORTAGE_TMPDIR": self.base_dir,
                         }
-                _command(["ebuild", ebuild_path, "digest", "clean", "merge"], env=env)
+                _command(
+                    ["ebuild", ebuild_path, "digest", "clean", "merge"],
+                    env=env,
+                )
                 kernel_sources_status = True
         else:
             logging.error("ebuild not present")
@@ -126,14 +135,18 @@ class PaTch(object):
         return kernel_sources_status
 
     def build_kernel(self, jobs):
-        kernel_config_path = os.path.join(self.__kernel_source_dir__, ".config")
+        kernel_config_path = os.path.join(
+            self.__kernel_source_dir__, ".config"
+        )
 
         if "CONFIG_DEBUG_INFO=y" in open(self.base_config_path).read():
             logging.debug("DEBUG_INFO correctly present")
         elif "CONFIG_DEBUG_INFO=n" in open(self.base_config_path).read():
             logging.debug("changing DEBUG_INFO to yes")
             for line in fileinput.input(self.base_config_path, inplace=1):
-                out = line.replace("CONFIG_DEBUG_INFO=n", "CONFIG_DEBUG_INFO=y")
+                out = line.replace(
+                    "CONFIG_DEBUG_INFO=n", "CONFIG_DEBUG_INFO=y"
+                )
                 logging.debug(out)
         else:
             logging.debug("Adding DEBUG_INFO for getting kernel debug symbols")
@@ -177,7 +190,9 @@ def _command(bashCommand, kernel_source_dir=None, env=None):
             logging.info(output_line.strip().decode("utf-8"))
     else:
         logging.info(bashCommand)
-        process = subprocess.Popen(bashCommand, stdout=subprocess.PIPE, env=env)
+        process = subprocess.Popen(
+            bashCommand, stdout=subprocess.PIPE, env=env
+        )
         output, error = process.communicate()
         for output_line in output.split(b"\n"):
             logging.info(output_line.strip().decode("utf-8"))
